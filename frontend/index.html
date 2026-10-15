@@ -1,0 +1,1721 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PeoplePulse — Attendance & Analytics</title>
+<style>
+:root{--bg:#f4f6fa;--panel:#fff;--ink:#182230;--muted:#687586;--line:#e6eaf0;--nav:#17243a;--blue:#4263eb;--blue2:#eef2ff;--green:#17845d;--greenbg:#e8f7f0;--amber:#a96b08;--amberbg:#fff4d9;--red:#bf3b43;--redbg:#fff0f0;--purple:#6941c6;--purplebg:#f9f5ff;--shadow:0 8px 24px #1822300a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Arial}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;border:0;border-radius:9px;padding:10px 14px;font-weight:650;transition:all .15s ease}
+button:disabled{opacity:.5;cursor:not-allowed}
+.primary{background:var(--blue);color:white}
+.primary:hover:not(:disabled){background:#3653d1}
+.secondary{background:#fff;border:1px solid var(--line);color:var(--ink)}
+.secondary:hover:not(:disabled){background:#f8fafc;border-color:#cbd5e1}
+.danger{background:var(--redbg);color:var(--red)}
+.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+.sidebar{background:var(--nav);color:#dce5f4;padding:24px 15px;display:flex;flex-direction:column;gap:24px}
+.brand{display:flex;align-items:center;gap:11px;padding:0 9px;font-size:17px;font-weight:800;color:#fff;letter-spacing:-.4px}
+.brand-mark{display:grid;place-items:center;width:34px;height:34px;background:#5876ff;border-radius:11px;color:#fff;font-weight:900}
+.side-label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#8290a8;padding:0 12px;margin-bottom:7px}
+.nav{display:grid;gap:5px}
+.nav button{background:transparent;color:#b9c5d8;text-align:left;padding:11px 12px;display:flex;align-items:center;gap:12px;font-weight:550}
+.nav button.active,.nav button:hover{background:#263750;color:#fff}
+.nav .ico{width:20px;text-align:center;font-size:16px}
+.side-foot{margin-top:auto;border-top:1px solid #314057;padding:17px 10px 0;color:#94a3b8;font-size:12px}
+.main{min-width:0}
+.topbar{height:74px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 34px;gap:15px}
+.crumb{color:var(--muted);font-size:12px}
+.top-title{font-size:18px;font-weight:750;margin-top:2px}
+.top-right{display:flex;align-items:center;gap:12px}
+.mode{display:flex;align-items:center;gap:8px;background:#f5f7fb;border:1px solid var(--line);padding:7px 11px;border-radius:9px;font-size:12px;font-weight:600}
+.dot{width:8px;height:8px;background:var(--green);border-radius:50%}
+.avatar{width:35px;height:35px;display:grid;place-items:center;border-radius:50%;background:#e8edff;color:#3b55c5;font-weight:800}
+.content{padding:28px 34px;max-width:1500px;margin:auto}
+.welcome{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:22px}
+.welcome h1{font-size:25px;letter-spacing:-.7px;margin:0 0 5px}
+.welcome p{margin:0;color:var(--muted)}
+.date-pill{white-space:nowrap;border:1px solid var(--line);background:white;border-radius:10px;padding:9px 12px;color:var(--muted);font-size:12px;font-weight:600}
+.banner{background:#edf2ff;border:1px solid #dbe4ff;color:#354b9b;border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:13px;display:flex;gap:10px;align-items:flex-start}
+.banner.api-active{background:#ecfdf3;border-color:#d1fadf;color:#027a48}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:20px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+.stat{padding:19px}
+.stat-top{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:12px}
+.stat-icon{width:34px;height:34px;border-radius:10px;background:var(--blue2);display:grid;place-items:center;font-size:16px}
+.stat-num{font-size:29px;font-weight:800;letter-spacing:-.8px;margin:13px 0 4px}
+.stat-note{font-size:11px;color:var(--muted)}
+.layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(320px,.9fr);gap:18px;margin-bottom:18px}
+.panel-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--line);gap:12px}
+.panel-head h2{font-size:15px;margin:0}
+.panel-head p{font-size:12px;color:var(--muted);margin:4px 0 0}
+.panel-body{padding:19px 20px}
+.quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.action-box{padding:16px;border:1px solid var(--line);border-radius:12px;background:#fcfdfe}
+.action-box h3{font-size:13px;margin:0 0 5px}
+.action-box p{font-size:12px;color:var(--muted);margin:0 0 14px}
+.action-row{display:flex;gap:8px;align-items:center}
+.action-row select{min-width:0;flex:1}
+.field{display:grid;gap:6px;margin-bottom:13px}
+.field label{font-size:12px;font-weight:650;color:#465365}
+.field input,.field select,.field textarea,select,input{width:100%;border:1px solid #dce2eb;background:#fff;border-radius:8px;padding:9px 11px;color:var(--ink);outline:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#8298ff;box-shadow:0 0 0 3px #4263eb15}
+.table-wrap{overflow:auto}
+table{border-collapse:collapse;width:100%;white-space:nowrap}
+th{font-size:10px;letter-spacing:.7px;text-transform:uppercase;color:#7c8797;text-align:left;background:#fafbfd;padding:12px 17px;border-bottom:1px solid var(--line)}
+td{padding:13px 17px;border-bottom:1px solid #edf0f5;font-size:12px}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:#fafbfd}
+.emp{display:flex;align-items:center;gap:10px}
+.initial{width:31px;height:31px;border-radius:10px;background:#eff2ff;color:#455bc5;display:grid;place-items:center;font-size:11px;font-weight:800}
+.emp-name{font-weight:700}
+.sub{font-size:10px;color:var(--muted);margin-top:2px}
+.badge{display:inline-flex;padding:3px 8px;border-radius:30px;font-size:10px;font-weight:750;letter-spacing:.2px}
+.b-green{background:var(--greenbg);color:var(--green)}
+.b-amber{background:var(--amberbg);color:var(--amber)}
+.b-red{background:var(--redbg);color:var(--red)}
+.b-blue{background:var(--blue2);color:#455bc5}
+.b-purple{background:var(--purplebg);color:var(--purple)}
+.b-gray{background:#eff1f5;color:#697586}
+.barlist{display:grid;gap:15px}
+.barline{display:grid;grid-template-columns:100px 1fr 35px;gap:12px;align-items:center;font-size:12px}
+.bar-track{height:8px;background:#eef1f6;border-radius:99px;overflow:hidden}
+.bar-fill{height:100%;background:#5876ff;border-radius:99px}
+.filters{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:14px 20px;border-bottom:1px solid var(--line);background:#fafbfd}
+.filters input,.filters select{width:auto;min-width:130px;padding:8px 10px;font-size:12px}
+.filters .search{min-width:200px}
+.pagination-bar{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+.pagination-controls{display:flex;gap:6px;align-items:center}
+.section{display:none}
+.section.active{display:block}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.metric-row{display:flex;justify-content:space-between;gap:15px;padding:12px 0;border-bottom:1px solid var(--line)}
+.metric-row:last-child{border:0}
+.metric-row span:first-child{color:var(--muted)}
+.metric-row strong{font-size:13px}
+.chart{display:flex;align-items:end;gap:12px;height:190px;padding:24px 10px 0;border-bottom:1px solid var(--line)}
+.chart-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:end;height:100%;gap:7px;min-width:0}
+.chart-bar{width:min(32px,80%);min-height:4px;border-radius:5px 5px 0 0;background:linear-gradient(180deg,#7188ff,#4563e8);transition:height .3s ease}
+.chart-bar.weekend{background:#cbd5e1}
+.chart-label{font-size:10px;color:var(--muted);white-space:nowrap}
+.empty{padding:30px;text-align:center;color:var(--muted)}
+.modal-backdrop{position:fixed;inset:0;background:#0d172b70;display:none;align-items:center;justify-content:center;padding:20px;z-index:20}
+.modal-backdrop.show{display:flex}
+.modal{background:white;border-radius:16px;width:min(560px,100%);max-height:90vh;overflow:auto;box-shadow:0 25px 80px #11182740}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--line)}
+.modal-head h2{font-size:16px;margin:0}
+.modal-body{padding:20px 22px}
+.modal-actions{display:flex;justify-content:flex-end;gap:9px;padding-top:10px}
+.toast{position:fixed;right:22px;bottom:22px;background:#17243a;color:#fff;padding:13px 18px;border-radius:10px;box-shadow:var(--shadow);z-index:30;display:none;max-width:420px;font-size:13px}
+.toast.show{display:block}
+.toast.error{background:#991b1b}
+.toast.success{background:#065f46}
+.muted{color:var(--muted)}
+.small{font-size:11px}
+.footer-note{font-size:11px;color:var(--muted);padding:14px 4px}
+.hide{display:none!important}
+.code-pre{background:#0f172a;color:#e2e8f0;padding:14px;border-radius:10px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:11.5px;max-height:280px;overflow:auto;line-height:1.45}
+.pill-tag{font-size:10.5px;padding:2px 7px;border-radius:6px;background:#edf2f7;color:#4a5568;font-weight:600}
+@media(max-width:1050px){.app{grid-template-columns:75px 1fr}.sidebar{padding:22px 9px}.brand{padding:0;justify-content:center}.brand-name,.side-label,.nav-label,.side-foot{display:none}.nav button{justify-content:center;padding:12px 4px}.nav .ico{font-size:18px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.layout{grid-template-columns:1fr}.content{padding:24px}.topbar{padding:0 24px}}
+@media(max-width:650px){.app{grid-template-columns:1fr}.sidebar{position:sticky;top:0;z-index:5;flex-direction:row;align-items:center;padding:9px 12px;overflow:auto}.brand{flex-shrink:0}.brand-name{display:block;font-size:13px}.nav{display:flex;gap:3px}.nav button{padding:8px}.nav .ico{font-size:16px}.topbar{height:62px;padding:0 15px}.content{padding:16px 12px}.welcome{display:block}.date-pill{display:inline-block;margin-top:10px}.stats{gap:9px}.stat{padding:13px}.stat-num{font-size:24px}.quick-actions,.two-col{grid-template-columns:1fr}.panel-head,.panel-body{padding:15px}.filters{padding:12px}.filters input,.filters select,.filters .search{width:100%;min-width:0}.top-right .mode{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand"><div class="brand-mark">P</div><span class="brand-name">PeoplePulse</span></div>
+  <div><div class="side-label">Workspace</div><nav class="nav" id="nav">
+    <button class="active" data-page="dashboard"><span class="ico">▦</span><span class="nav-label">Overview</span></button>
+    <button data-page="employees"><span class="ico">♙</span><span class="nav-label">Employees</span></button>
+    <button data-page="attendance"><span class="ico">◷</span><span class="nav-label">Attendance</span></button>
+    <button data-page="corrections"><span class="ico">↺</span><span class="nav-label">Corrections & audit</span></button>
+    <button data-page="analytics"><span class="ico">▥</span><span class="nav-label">Analytics</span></button>
+    <button data-page="explain"><span class="ico">⚡</span><span class="nav-label">API Explain</span></button>
+    <button data-page="api"><span class="ico">⌘</span><span class="nav-label">API connection</span></button>
+  </nav></div>
+  <div class="side-foot">HROne Trainee Project<br>Frontend + FastAPI + Mongo</div>
+</aside>
+<main class="main">
+<header class="topbar">
+  <div>
+    <div class="crumb">Workspace / <span id="crumb">Overview</span></div>
+    <div class="top-title" id="topTitle">Attendance overview</div>
+  </div>
+  <div class="top-right">
+    <div class="mode"><span class="dot" id="modeDot"></span><span id="modeLabel">Demo mode · sample data</span></div>
+    <div class="avatar">HR</div>
+  </div>
+</header>
+
+<div class="content">
+
+<!-- SECTION: DASHBOARD -->
+<section class="section active" id="page-dashboard">
+  <div class="welcome">
+    <div><h1>Good morning, HR team</h1><p>Here's what's happening with attendance today.</p></div>
+    <div class="date-pill" id="todayLabel">Today</div>
+  </div>
+  <div class="banner" id="dashboardBanner"><span>ⓘ</span><div><strong>Interactive demo mode.</strong> Actions update sample data in this browser. Switch to <strong>API mode</strong> in API connection to query the FastAPI backend and MongoDB.</div></div>
+  <div class="stats" id="stats"></div>
+  <div class="layout">
+    <div class="card">
+      <div class="panel-head"><div><h2>Attendance activity</h2><p>Latest employee records</p></div><button class="secondary" onclick="navigate('attendance')">View all →</button></div>
+      <div class="table-wrap"><table><thead><tr><th>Employee</th><th>Date</th><th>Shift</th><th>Punch in (IST)</th><th>Punch out (IST)</th><th>Status</th><th>Hours</th></tr></thead><tbody id="recentRows"></tbody></table></div>
+    </div>
+    <div class="card">
+      <div class="panel-head"><div><h2>Department attendance</h2><p>Present records today</p></div><span class="badge b-blue" id="deptBadge">Today</span></div>
+      <div class="panel-body"><div class="barlist" id="deptBars"></div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="panel-head"><div><h2>Quick attendance actions</h2><p>Record an employee's punch-in or punch-out via the official API endpoints.</p></div></div>
+    <div class="panel-body"><div class="quick-actions">
+      <div class="action-box">
+        <h3>↗ Punch in</h3>
+        <p>Start a daily attendance session (R1/R2 grace checks).</p>
+        <div class="field" style="margin-bottom:8px">
+          <label>Status type</label>
+          <select id="punchInStatus"><option value="PRESENT">PRESENT (On-site)</option><option value="WFH">WFH (Work from home)</option><option value="ON_DUTY">ON_DUTY (Official duty)</option></select>
+        </div>
+        <div class="action-row"><select id="punchInEmployee" aria-label="Employee for punch in"></select><button class="primary" onclick="punchIn()">Punch in</button></div>
+      </div>
+      <div class="action-box">
+        <h3>↙ Punch out</h3>
+        <p>Close an open session and calculate R3/R4/R5 metrics.</p>
+        <div style="height:48px;display:flex;align-items:center;color:var(--muted);font-size:12px;">Closes the most recent open session for this employee.</div>
+        <div class="action-row"><select id="punchOutEmployee" aria-label="Employee for punch out"></select><button class="primary" onclick="punchOut()">Punch out</button></div>
+      </div>
+    </div></div>
+  </div>
+</section>
+
+<!-- SECTION: EMPLOYEES -->
+<section class="section" id="page-employees">
+  <div class="welcome">
+    <div><h1>Employees</h1><p>Manage employee profiles, shift assignments, and joining dates.</p></div>
+    <button class="primary" onclick="openEmployeeModal()">＋ Add employee</button>
+  </div>
+  <div class="card">
+    <div class="filters">
+      <input class="search" id="employeeSearch" placeholder="Search name or employee code…" oninput="onEmployeeFilterChange()">
+      <select id="departmentFilter" onchange="onEmployeeFilterChange()"><option value="">All departments</option></select>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Employee</th><th>Department</th><th>Shift (IST)</th><th>Joined on</th><th>Today's status</th><th>Actions</th></tr></thead>
+        <tbody id="employeeRows"></tbody>
+      </table>
+    </div>
+    <div class="pagination-bar">
+      <span id="employeePageInfo">Showing 0 of 0 employees</span>
+      <div class="pagination-controls">
+        <button class="secondary" id="empPrevBtn" onclick="changeEmployeePage(-1)">← Previous</button>
+        <span id="empPageNum" style="font-weight:600">Page 1</span>
+        <button class="secondary" id="empNextBtn" onclick="changeEmployeePage(1)">Next →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION: ATTENDANCE -->
+<section class="section" id="page-attendance">
+  <div class="welcome">
+    <div><h1>Attendance records</h1><p>Filter official attendance logs, inspect work hours, and correct discrepancies.</p></div>
+    <button class="primary" onclick="navigate('dashboard')">＋ Record punch</button>
+  </div>
+  <div class="card">
+    <div class="filters">
+      <input id="attendanceSearch" class="search" placeholder="Employee code (e.g. EMP0001)…" oninput="onAttendanceFilterChange()">
+      <input type="date" id="fromDate" aria-label="From date" onchange="onAttendanceFilterChange()">
+      <input type="date" id="toDate" aria-label="To date" onchange="onAttendanceFilterChange()">
+      <select id="statusFilter" onchange="onAttendanceFilterChange()">
+        <option value="">All statuses</option>
+        <option value="PRESENT">PRESENT</option>
+        <option value="WFH">WFH</option>
+        <option value="ON_DUTY">ON_DUTY</option>
+        <option value="ABSENT">ABSENT</option>
+        <option value="LEAVE">LEAVE</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Employee</th><th>Date</th><th>Punch in (IST)</th><th>Punch out (IST)</th><th>Work hours</th><th>Late</th><th>Overtime</th><th>Half day</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="attendanceRows"></tbody>
+      </table>
+    </div>
+    <div class="pagination-bar">
+      <span id="attendancePageInfo">Showing 0 of 0 records</span>
+      <div class="pagination-controls">
+        <button class="secondary" id="attPrevBtn" onclick="changeAttendancePage(-1)">← Previous</button>
+        <span id="attPageNum" style="font-weight:600">Page 1</span>
+        <button class="secondary" id="attNextBtn" onclick="changeAttendancePage(1)">Next →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION: CORRECTIONS & AUDIT -->
+<section class="section" id="page-corrections">
+  <div class="welcome">
+    <div><h1>Corrections & audit trail</h1><p>Apply manual regularizations via <code>PATCH /attendance/{emp_code}/{date}</code> and inspect immutable audit entries.</p></div>
+  </div>
+  <div class="banner"><span>ⓘ</span><div>Each successful correction recomputes <code>late_minutes</code>, <code>work_hours</code>, <code>overtime_minutes</code>, and <code>half_day</code> per rules R2-R5 and atomically records an audit history entry with changed fields only.</div></div>
+  <div class="card">
+    <div class="panel-head"><div><h2>Attendance records</h2><p>Select any record to review times or make a manual correction.</p></div></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Employee</th><th>Date</th><th>Status</th><th>Work hours</th><th>Audit entries</th><th>Actions</th></tr></thead>
+        <tbody id="correctionRows"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card" style="margin-top:18px">
+    <div class="panel-head"><div><h2>Audit history log</h2><p>Immutable history of manual regularizations</p></div></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>When (IST)</th><th>Employee</th><th>Regularized by</th><th>Reason</th><th>Changed fields</th></tr></thead>
+        <tbody id="auditRows"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION: ANALYTICS -->
+<section class="section" id="page-analytics">
+  <div class="welcome">
+    <div><h1>Analytics & insights</h1><p>Monthly department summaries, late rankings, daily trends, and employee metrics calculated by MongoDB aggregation pipelines.</p></div>
+    <div class="date-pill">MongoDB Aggregations</div>
+  </div>
+  <div class="banner" id="analyticsBanner"><span>ⓘ</span><div>Viewing calculated analytics. Switch to API mode to run these pipelines live on your MongoDB database.</div></div>
+
+  <div class="two-col">
+    <!-- Department Summary -->
+    <div class="card">
+      <div class="panel-head">
+        <div><h2>Department summary</h2><p>R9 Headcount, present days & average work hours</p></div>
+        <input style="width:130px" type="month" id="summaryMonth" onchange="renderAnalytics()">
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Department</th><th>Headcount</th><th>Present days</th><th>Avg hours</th><th>Late count</th><th>Late mins</th><th>Leaves</th></tr></thead>
+          <tbody id="summaryRows"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Late Leaderboard -->
+    <div class="card">
+      <div class="panel-head">
+        <div><h2>Late arrivals leaderboard</h2><p>Standard competition ranking ($rank) with ties</p></div>
+        <div style="display:flex;gap:6px">
+          <select style="width:105px" id="leaderLimit" onchange="renderAnalytics()">
+            <option value="5">Top 5</option>
+            <option value="10" selected>Top 10</option>
+            <option value="20">Top 20</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Rank</th><th>Employee</th><th>Department</th><th>Late minutes</th><th>Late count</th></tr></thead>
+          <tbody id="leaderRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Department Daily Trend Chart -->
+  <div class="card" style="margin-top:18px">
+    <div class="panel-head">
+      <div><h2>Department trend & 7-day moving average</h2><p>Calendar-accurate gap filling via <code>$densify</code> and windowed moving averages via <code>$setWindowFields</code></p></div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <select id="trendDepartment" onchange="renderTrend()"></select>
+      </div>
+    </div>
+    <div class="panel-body">
+      <div class="chart" id="trendChart"></div>
+      <div id="trendSummary" class="footer-note"></div>
+    </div>
+  </div>
+
+  <!-- Employee Monthly Breakdown Card -->
+  <div class="card" style="margin-top:18px">
+    <div class="panel-head">
+      <div><h2>Employee monthly attendance card</h2><p>Official summary with mid-month joiner working days (R7) and attendance percentage (R8)</p></div>
+      <div style="display:flex;gap:8px">
+        <select id="empMonthlySelect" style="width:190px" onchange="renderEmployeeMonthly()"></select>
+      </div>
+    </div>
+    <div class="panel-body" id="empMonthlyContent">
+      <div class="empty">Select an employee above to load monthly statistics.</div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION: API EXPLAIN TOOL -->
+<section class="section" id="page-explain">
+  <div class="welcome">
+    <div><h1>MongoDB query explain tool</h1><p>Inspect raw <code>executionStats</code> query plans to verify index usage (<code>IXSCAN</code>) per <code>GET /admin/explain/{endpoint}</code>.</p></div>
+  </div>
+  <div class="card">
+    <div class="panel-head"><div><h2>Run query plan explain</h2><p>Select an endpoint to benchmark its MongoDB execution plan</p></div></div>
+    <div class="panel-body">
+      <div class="two-col">
+        <div class="field">
+          <label>Target endpoint</label>
+          <select id="explainEndpoint" onchange="onExplainEndpointChange()">
+            <option value="attendance_list">attendance_list (GET /attendance)</option>
+            <option value="employee_monthly">employee_monthly (GET /analytics/employees/{emp_code}/monthly)</option>
+            <option value="department_summary">department_summary (GET /analytics/departments/summary)</option>
+            <option value="late_leaderboard">late_leaderboard (GET /analytics/leaderboard/late)</option>
+            <option value="department_trend">department_trend (GET /analytics/departments/{dept}/trend)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Action</label>
+          <button class="primary" onclick="runExplain()">⚡ Inspect query plan</button>
+        </div>
+      </div>
+      <div id="explainParamsRow" class="two-col" style="margin-top:5px"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px" id="explainResultCard">
+    <div class="panel-head"><div><h2>Execution summary</h2><p>Performance metrics and winning plan stage</p></div></div>
+    <div class="panel-body">
+      <div id="explainSummaryBox" class="empty">Click "Inspect query plan" above to execute MongoDB explain.</div>
+      <h3 style="margin:18px 0 8px;font-size:13px">Raw explain response (JSON)</h3>
+      <pre class="code-pre" id="explainJsonViewer">// Output will appear here</pre>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION: API CONNECTION SETTINGS -->
+<section class="section" id="page-api">
+  <div class="welcome">
+    <div><h1>API connection</h1><p>Connect this application to your local FastAPI backend and MongoDB service.</p></div>
+  </div>
+  <div class="layout">
+    <div class="card">
+      <div class="panel-head"><div><h2>Backend settings</h2><p>Configure base URL and runtime mode</p></div></div>
+      <div class="panel-body">
+        <div class="field">
+          <label for="apiBase">FastAPI base URL</label>
+          <input id="apiBase" value="http://127.0.0.1:8000" placeholder="http://127.0.0.1:8000">
+        </div>
+        <div class="field">
+          <label>Connection mode</label>
+          <select id="connectionMode">
+            <option value="demo">Demo mode — local sample data</option>
+            <option value="api">API mode — real FastAPI & MongoDB</option>
+          </select>
+        </div>
+        <div class="action-row">
+          <button class="primary" onclick="saveApiSettings()">Save settings</button>
+          <button class="secondary" onclick="testConnection()">Test connection</button>
+        </div>
+        <p class="small muted" style="margin-top:15px">In API mode, requests are sent to FastAPI with JSON headers. FastAPI is configured with local-origin CORS support for <code>http://127.0.0.1:5500</code> and <code>http://localhost:5500</code>.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="panel-head"><div><h2>Connection status</h2><p>Readiness check via <code>GET /health</code></p></div></div>
+      <div class="panel-body">
+        <div class="metric-row"><span>Current mode</span><strong id="settingsMode">Demo</strong></div>
+        <div class="metric-row"><span>API base URL</span><strong id="settingsBase" style="max-width:180px;overflow-wrap:anywhere">http://127.0.0.1:8000</strong></div>
+        <div class="metric-row"><span>Last health check</span><strong id="healthStatus">Not checked</strong></div>
+        <div class="metric-row"><span>Contract health route</span><code>GET /health</code></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="panel-head"><div><h2>Official OpenAPI contract endpoints</h2><p>All endpoints strictly adhere to the HROne candidate kit specification.</p></div></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Method</th><th>Endpoint</th><th>Purpose</th><th>Assignment rule</th></tr></thead>
+        <tbody>
+          <tr><td><span class="badge b-green">GET</span></td><td><code>/health</code></td><td>Readiness probe for MongoDB</td><td>System</td></tr>
+          <tr><td><span class="badge b-blue">POST</span></td><td><code>/employees</code></td><td>Create employee (unique code index)</td><td>Employees</td></tr>
+          <tr><td><span class="badge b-green">GET</span></td><td><code>/employees</code></td><td>Paginated employee directory</td><td>R10</td></tr>
+          <tr><td><span class="badge b-blue">POST</span></td><td><code>/attendance/punch-in</code></td><td>Record punch-in & check grace</td><td>R1, R2</td></tr>
+          <tr><td><span class="badge b-blue">POST</span></td><td><code>/attendance/punch-out</code></td><td>Close session, compute hours & overtime</td><td>R3, R4, R5</td></tr>
+          <tr><td><span class="badge b-green">GET</span></td><td><code>/attendance</code></td><td>Paginated attendance logs</td><td>R10</td></tr>
+          <tr><td><span class="badge b-amber">PATCH</span></td><td><code>/attendance/{emp_code}/{date}</code></td><td>Manual regularization & audit history</td><td>History</td></tr>
+          <tr><td><span class="badge b-purple">GET</span></td><td><code>/analytics/employees/{emp_code}/monthly</code></td><td>Employee monthly summary</td><td>R7, R8</td></tr>
+          <tr><td><span class="badge b-purple">GET</span></td><td><code>/analytics/departments/summary</code></td><td>Department monthly summary</td><td>R8, R9</td></tr>
+          <tr><td><span class="badge b-purple">GET</span></td><td><code>/analytics/leaderboard/late</code></td><td>Late-comers standard competition ranking</td><td>Ties</td></tr>
+          <tr><td><span class="badge b-purple">GET</span></td><td><code>/analytics/departments/{department}/trend</code></td><td>Daily trend with gap filling & 7d MA</td><td>$densify</td></tr>
+          <tr><td><span class="badge b-green">GET</span></td><td><code>/admin/explain/{endpoint}</code></td><td>MongoDB query plan (IXSCAN validation)</td><td>Index check</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+</div></main></div>
+
+<!-- MODAL & TOAST -->
+<div class="modal-backdrop" id="modalBackdrop" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-head"><h2 id="modalTitle">Edit</h2><button class="secondary" onclick="closeModal()">✕</button></div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// --- CORE UTILITIES & STATE ---
+const $ = id => document.getElementById(id);
+const now = new Date();
+const today = localDate(now);
+const currentMonth = today.slice(0, 7);
+
+function localDate(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function stamp(dateStr, timeStr) {
+  return new Date(`${dateStr}T${timeStr}:00+05:30`).getTime();
+}
+
+function timeFromEpoch(ms) {
+  if (ms == null) return '—';
+  return new Intl.DateTimeFormat('en-IN', {
+    timeZone: 'Asia/Kolkata',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  }).format(new Date(ms));
+}
+
+function timeInputFromEpoch(ms) {
+  if (ms == null) return '';
+  let d = new Date(ms);
+  let parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Asia/Kolkata',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  }).formatToParts(d);
+  let h = parts.find(p => p.type === 'hour')?.value || '00';
+  let m = parts.find(p => p.type === 'minute')?.value || '00';
+  return `${h}:${m}`;
+}
+
+function fmt(n, d = 2) {
+  return n == null ? '—' : Number(n).toFixed(d);
+}
+
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function initials(n) {
+  return (n || '?').split(' ').map(x => x[0]).slice(0, 2).join('').toUpperCase();
+}
+
+function statusBadge(s) {
+  let c = s === 'PRESENT' ? 'b-green' : s === 'WFH' ? 'b-blue' : s === 'ON_DUTY' ? 'b-purple' : s === 'LEAVE' ? 'b-gray' : s === 'ABSENT' ? 'b-red' : 'b-amber';
+  return `<span class="badge ${c}">${s || 'OPEN'}</span>`;
+}
+
+function notify(msg, isError = false) {
+  let t = $('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + (isError ? 'error' : 'success');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.className = 'toast', 4500);
+}
+
+// Seed data for standalone Demo mode
+const seedEmployees = [
+  { emp_code: 'EMP0001', name: 'Aarav Sharma', email: 'aarav.sharma@example.com', department: 'Engineering', shift_start: '09:30', shift_end: '18:30', joined_on: '2025-04-14' },
+  { emp_code: 'EMP0002', name: 'Diya Patel', email: 'diya.patel@example.com', department: 'Engineering', shift_start: '09:30', shift_end: '18:30', joined_on: '2025-06-02' },
+  { emp_code: 'EMP0003', name: 'Ishaan Rao', email: 'ishaan.rao@example.com', department: 'Sales', shift_start: '09:00', shift_end: '18:00', joined_on: '2025-01-20' },
+  { emp_code: 'EMP0004', name: 'Meera Nair', email: 'meera.nair@example.com', department: 'Human Resources', shift_start: '09:30', shift_end: '18:30', joined_on: '2025-08-11' },
+  { emp_code: 'EMP0005', name: 'Kabir Singh', email: 'kabir.singh@example.com', department: 'Support', shift_start: '22:00', shift_end: '06:00', joined_on: '2025-02-03' },
+  { emp_code: 'EMP0006', name: 'Ananya Iyer', email: 'ananya.iyer@example.com', department: 'Sales', shift_start: '09:00', shift_end: '18:00', joined_on: '2026-09-01' },
+  { emp_code: 'EMP0007', name: 'Vihaan Das', email: 'vihaan.das@example.com', department: 'Support', shift_start: '09:30', shift_end: '18:30', joined_on: '2026-10-01' }
+];
+
+function seedRecords() {
+  let d = today;
+  let prevDate = new Date();
+  prevDate.setDate(prevDate.getDate() - 1);
+  let p = localDate(prevDate);
+  let list = [];
+  const add = (emp, date, inn, out, status = 'PRESENT', late = 0, overtime = 0) => {
+    let hours = (inn && out) ? Math.round(((out - inn) / 3600000) * 100) / 100 : null;
+    list.push({
+      emp_code: emp,
+      date,
+      status,
+      punch_in: inn,
+      punch_out: out,
+      work_hours: hours,
+      late_minutes: late,
+      overtime_minutes: overtime,
+      half_day: hours !== null && hours < 4.5,
+      history: []
+    });
+  };
+  add('EMP0001', d, stamp(d, '09:45'), stamp(d, '18:42'), 'PRESENT', 15, 12);
+  add('EMP0002', d, stamp(d, '09:28'), stamp(d, '18:31'), 'WFH', 0, 1);
+  add('EMP0003', d, stamp(d, '09:22'), null, 'PRESENT', 0, 0);
+  add('EMP0004', d, stamp(d, '09:30'), stamp(d, '18:30'), 'PRESENT', 0, 0);
+  add('EMP0006', d, stamp(d, '09:12'), null, 'ON_DUTY', 0, 0);
+  add('EMP0001', p, stamp(p, '09:50'), stamp(p, '18:35'), 'PRESENT', 20, 5);
+  add('EMP0002', p, stamp(p, '09:31'), stamp(p, '18:32'), 'PRESENT', 0, 2);
+  add('EMP0003', p, null, null, 'LEAVE', 0, 0);
+  add('EMP0005', p, stamp(p, '22:05'), stamp(d, '06:10'), 'PRESENT', 5, 10);
+  add('EMP0004', p, stamp(p, '09:30'), stamp(p, '13:45'), 'PRESENT', 0, 0);
+  return list;
+}
+
+// Global Application State
+let state = {
+  mode: 'api', // default to api mode as requested
+  base: 'http://127.0.0.1:8000',
+  health: 'Not checked',
+  employees: [],
+  empTotal: 0,
+  empPage: 1,
+  empPageSize: 10,
+  records: [],
+  attTotal: 0,
+  attPage: 1,
+  attPageSize: 10,
+  todayRecords: [],
+  analyticsCache: {}
+};
+
+function saveLocal() {
+  if (state.mode === 'demo') {
+    localStorage.setItem('peoplepulse-demo', JSON.stringify({
+      employees: state.employees,
+      records: state.records
+    }));
+  }
+}
+
+function loadLocal() {
+  try {
+    let x = JSON.parse(localStorage.getItem('peoplepulse-demo'));
+    if (x && Array.isArray(x.employees) && Array.isArray(x.records)) {
+      state.employees = x.employees;
+      state.records = x.records;
+      state.empTotal = x.employees.length;
+      state.attTotal = x.records.length;
+      return;
+    }
+  } catch (e) {}
+  state.employees = seedEmployees.map(e => ({ ...e, created_at: Date.now() }));
+  state.records = seedRecords();
+  state.empTotal = state.employees.length;
+  state.attTotal = state.records.length;
+}
+
+// --- ROBUST HTTP CLIENT ---
+async function request(path, options = {}) {
+  let url = state.base.replace(/\/$/, '') + path;
+  let headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+  let res;
+  try {
+    res = await fetch(url, { ...options, headers });
+  } catch (err) {
+    throw new Error(`Cannot reach FastAPI at ${state.base}. Ensure backend is running.`);
+  }
+
+  let data;
+  let text = await res.text();
+  try {
+    data = JSON.parse(text);
+  } catch (e) {
+    data = { detail: text || res.statusText };
+  }
+
+  if (!res.ok) {
+    let msg = 'Request failed';
+    if (typeof data.detail === 'string') {
+      msg = data.detail;
+    } else if (Array.isArray(data.detail)) {
+      msg = data.detail.map(d => `${d.loc ? d.loc.slice(1).join('.') + ': ' : ''}${d.msg}`).join('; ');
+    } else if (data.detail) {
+      msg = JSON.stringify(data.detail);
+    }
+    throw new Error(msg);
+  }
+  return data;
+}
+
+function getEmployee(code) {
+  return state.employees.find(e => e.emp_code === code) || {
+    emp_code: code,
+    name: 'Unknown Employee',
+    department: '—',
+    shift_start: '09:30',
+    shift_end: '18:30'
+  };
+}
+
+// --- NAVIGATION ---
+function navigate(page) {
+  document.querySelectorAll('.section').forEach(x => x.classList.remove('active'));
+  let target = $('page-' + page);
+  if (target) target.classList.add('active');
+
+  document.querySelectorAll('#nav button').forEach(b => {
+    b.classList.toggle('active', b.dataset.page === page);
+  });
+
+  let titles = {
+    dashboard: 'Attendance overview',
+    employees: 'Employee management',
+    attendance: 'Attendance records',
+    corrections: 'Corrections & audit trail',
+    analytics: 'Analytics & aggregation insights',
+    explain: 'MongoDB query plan explain',
+    api: 'API connection settings'
+  };
+  let crumbs = {
+    dashboard: 'Overview',
+    employees: 'Employees',
+    attendance: 'Attendance',
+    corrections: 'Corrections & audit',
+    analytics: 'Analytics',
+    explain: 'API Explain',
+    api: 'API connection'
+  };
+
+  $('crumb').textContent = crumbs[page] || 'Overview';
+  $('topTitle').textContent = titles[page] || 'Overview';
+
+  if (page === 'dashboard') refreshDashboard();
+  if (page === 'employees') renderEmployees();
+  if (page === 'attendance') renderAttendance();
+  if (page === 'corrections') renderCorrections();
+  if (page === 'analytics') renderAnalytics();
+  if (page === 'explain') onExplainEndpointChange();
+}
+
+$('nav').addEventListener('click', e => {
+  let b = e.target.closest('button[data-page]');
+  if (b) navigate(b.dataset.page);
+});
+
+// --- DASHBOARD ---
+async function refreshDashboard() {
+  if (state.mode === 'api') {
+    try {
+      let [empRes, attRes, recentRes] = await Promise.all([
+        request('/employees?page=1&page_size=1'),
+        request(`/attendance?date_from=${today}&date_to=${today}&page=1&page_size=100`),
+        request('/attendance?page=1&page_size=6')
+      ]);
+      state.empTotal = empRes.total || 0;
+      state.todayRecords = attRes.items || [];
+      renderDashboardFromData(state.empTotal, state.todayRecords, recentRes.items || []);
+    } catch (e) {
+      notify('Dashboard refresh error: ' + e.message, true);
+    }
+  } else {
+    let recs = state.records.filter(r => r.date === today);
+    let recent = [...state.records].sort((a, b) => b.date.localeCompare(a.date) || (b.punch_in || 0) - (a.punch_in || 0)).slice(0, 6);
+    renderDashboardFromData(state.employees.length, recs, recent);
+  }
+}
+
+function renderDashboardFromData(totalEmp, todayLogs, recentLogs) {
+  let present = todayLogs.filter(r => ['PRESENT', 'WFH', 'ON_DUTY'].includes(r.status)).length;
+  let late = todayLogs.filter(r => (r.late_minutes || 0) > 0).length;
+  let open = todayLogs.filter(r => r.punch_in && !r.punch_out).length;
+
+  let statsData = [
+    ['Total employees', totalEmp, 'Active workforce headcount', '♙'],
+    ['Present today', present, `${todayLogs.length} total attendance records`, '✓'],
+    ['Late arrivals', late, 'Employees arrived > 10m grace', '◷'],
+    ['Open sessions', open, 'Punched in, awaiting punch-out', '↗']
+  ];
+  $('stats').innerHTML = statsData.map(s => `
+    <div class="card stat">
+      <div class="stat-top"><span>${s[0]}</span><span class="stat-icon">${s[3]}</span></div>
+      <div class="stat-num">${s[1]}</div>
+      <div class="stat-note">${s[2]}</div>
+    </div>
+  `).join('');
+
+  // Department attendance breakdown
+  let groups = {};
+  todayLogs.forEach(r => {
+    let emp = getEmployee(r.emp_code);
+    let dept = emp.department || 'General';
+    groups[dept] = (groups[dept] || 0);
+    if (['PRESENT', 'WFH', 'ON_DUTY'].includes(r.status)) {
+      groups[dept]++;
+    }
+  });
+
+  let max = Math.max(1, ...Object.values(groups));
+  let entries = Object.entries(groups).sort((a, b) => b[1] - a[1]);
+  $('deptBars').innerHTML = entries.length ? entries.map(([d, n]) => `
+    <div class="barline">
+      <span>${esc(d)}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(n / max * 100)}%"></div></div>
+      <strong>${n}</strong>
+    </div>
+  `).join('') : '<div class="empty">No present records recorded today yet.</div>';
+
+  // Recent rows
+  $('recentRows').innerHTML = recentLogs.length ? recentLogs.map(r => {
+    let e = getEmployee(r.emp_code);
+    return `
+      <tr>
+        <td>
+          <div class="emp">
+            <div class="initial">${initials(e.name)}</div>
+            <div><div class="emp-name">${esc(e.name)}</div><div class="sub">${r.emp_code}</div></div>
+          </div>
+        </td>
+        <td>${r.date}</td>
+        <td>${e.shift_start}–${e.shift_end}</td>
+        <td>${timeFromEpoch(r.punch_in)}</td>
+        <td>${timeFromEpoch(r.punch_out)}</td>
+        <td>${statusBadge(r.status)}</td>
+        <td><strong>${fmt(r.work_hours)}</strong></td>
+      </tr>
+    `;
+  }).join('') : '<tr><td colspan="7" class="empty">No attendance activity recorded yet.</td></tr>';
+}
+
+// --- QUICK ACTIONS: PUNCH-IN & PUNCH-OUT ---
+async function punchIn() {
+  let code = $('punchInEmployee').value;
+  let status = $('punchInStatus').value;
+  if (!code) return notify('Please select an employee.', true);
+
+  if (state.mode === 'api') {
+    try {
+      let res = await request('/attendance/punch-in', {
+        method: 'POST',
+        body: JSON.stringify({ emp_code: code, status })
+      });
+      notify(`Punch-in recorded for ${res.emp_code} on ${res.date} (${res.status}).`);
+      await refreshAllData();
+    } catch (e) {
+      notify(`Punch-in failed: ${e.message}`, true);
+    }
+  } else {
+    let existing = state.records.find(r => r.emp_code === code && r.date === today);
+    if (existing) return notify(`An attendance record already exists for ${code} on ${today}.`, true);
+    let e = getEmployee(code);
+    let nowms = Math.floor(Date.now() / 1000) * 1000;
+    state.records.push({
+      emp_code: code,
+      date: today,
+      status: status,
+      punch_in: nowms,
+      punch_out: null,
+      work_hours: null,
+      late_minutes: 0,
+      overtime_minutes: 0,
+      half_day: false,
+      history: []
+    });
+    saveLocal();
+    notify(`${e.name} punched in successfully.`);
+    renderAll();
+  }
+}
+
+async function punchOut() {
+  let code = $('punchOutEmployee').value;
+  if (!code) return notify('Please select an employee.', true);
+
+  if (state.mode === 'api') {
+    try {
+      let res = await request('/attendance/punch-out', {
+        method: 'POST',
+        body: JSON.stringify({ emp_code: code })
+      });
+      notify(`Punch-out recorded for ${res.emp_code} · ${res.work_hours} work hours (${res.overtime_minutes}m OT).`);
+      await refreshAllData();
+    } catch (e) {
+      notify(`Punch-out failed: ${e.message}`, true);
+    }
+  } else {
+    let r = state.records.filter(x => x.emp_code === code && x.punch_in && !x.punch_out).sort((a, b) => b.punch_in - a.punch_in)[0];
+    if (!r) return notify(`No open punch-in record found for ${code}.`, true);
+    let out = Math.floor(Date.now() / 1000) * 1000;
+    if (out <= r.punch_in) return notify('Punch-out time must be after punch-in.', true);
+    let hours = Math.round(((out - r.punch_in) / 3600000) * 100) / 100;
+    r.punch_out = out;
+    r.work_hours = hours;
+    r.half_day = hours < 4.5;
+    saveLocal();
+    notify(`Punched out · ${hours} work hours recorded.`);
+    renderAll();
+  }
+}
+
+// --- EMPLOYEES SECTION ---
+let empDebounce;
+function onEmployeeFilterChange() {
+  clearTimeout(empDebounce);
+  empDebounce = setTimeout(() => {
+    state.empPage = 1;
+    renderEmployees();
+  }, 300);
+}
+
+function changeEmployeePage(delta) {
+  let maxPage = Math.max(1, Math.ceil(state.empTotal / state.empPageSize));
+  let next = state.empPage + delta;
+  if (next >= 1 && next <= maxPage) {
+    state.empPage = next;
+    renderEmployees();
+  }
+}
+
+async function renderEmployees() {
+  let q = ($('employeeSearch')?.value || '').trim();
+  let dept = $('departmentFilter')?.value || '';
+
+  if (state.mode === 'api') {
+    try {
+      let params = new URLSearchParams();
+      params.set('page', state.empPage);
+      params.set('page_size', state.empPageSize);
+      if (dept) params.set('department', dept);
+
+      let data = await request(`/employees?${params.toString()}`);
+      state.employees = data.items || [];
+      state.empTotal = data.total || 0;
+
+      // Filter locally by search if search text provided
+      let list = state.employees;
+      if (q) {
+        let ql = q.toLowerCase();
+        list = list.filter(e => (e.name + ' ' + e.emp_code + ' ' + e.email).toLowerCase().includes(ql));
+      }
+      renderEmployeeTable(list, state.empTotal);
+    } catch (e) {
+      notify('Failed loading employees: ' + e.message, true);
+    }
+  } else {
+    let list = state.employees.filter(e => (!dept || e.department === dept) && (!q || (e.name + ' ' + e.emp_code + ' ' + e.email).toLowerCase().includes(q.toLowerCase())));
+    state.empTotal = list.length;
+    let skip = (state.empPage - 1) * state.empPageSize;
+    let pageItems = list.slice(skip, skip + state.empPageSize);
+    renderEmployeeTable(pageItems, list.length);
+  }
+}
+
+function renderEmployeeTable(items, total) {
+  $('employeeRows').innerHTML = items.length ? items.map(e => {
+    let r = state.todayRecords.find(x => x.emp_code === e.emp_code && x.date === today) || state.records.find(x => x.emp_code === e.emp_code && x.date === today);
+    return `
+      <tr>
+        <td>
+          <div class="emp">
+            <div class="initial">${initials(e.name)}</div>
+            <div><div class="emp-name">${esc(e.name)}</div><div class="sub">${e.emp_code} · ${esc(e.email)}</div></div>
+          </div>
+        </td>
+        <td><span class="pill-tag">${esc(e.department)}</span></td>
+        <td>${e.shift_start}–${e.shift_end}</td>
+        <td>${e.joined_on}</td>
+        <td>${r ? statusBadge(r.status) : '<span class="badge b-gray">No record</span>'}</td>
+        <td><button class="secondary" onclick="openEmployeeModal('${e.emp_code}')">View</button></td>
+      </tr>
+    `;
+  }).join('') : '<tr><td colspan="6" class="empty">No matching employees found.</td></tr>';
+
+  let maxPage = Math.max(1, Math.ceil(total / state.empPageSize));
+  $('employeePageInfo').textContent = `Showing ${items.length} of ${total} employees`;
+  $('empPageNum').textContent = `Page ${state.empPage} of ${maxPage}`;
+  $('empPrevBtn').disabled = state.empPage <= 1;
+  $('empNextBtn').disabled = state.empPage >= maxPage;
+}
+
+function openEmployeeModal(code = '') {
+  let e = code ? getEmployee(code) : {
+    emp_code: '',
+    name: '',
+    email: '',
+    department: 'Engineering',
+    shift_start: '09:30',
+    shift_end: '18:30',
+    joined_on: today
+  };
+  $('modalTitle').textContent = code ? `Employee details · ${code}` : 'Add employee';
+  $('modalBody').innerHTML = `
+    <form id="employeeForm">
+      <div class="field">
+        <label>Employee code</label>
+        <input name="emp_code" value="${esc(e.emp_code)}" placeholder="EMP0008" pattern="EMP[0-9]{4,6}" required ${code ? 'readonly' : ''}>
+        <span class="small muted">Customer-defined code matching regex ^EMP[0-9]{4,6}$</span>
+      </div>
+      <div class="field">
+        <label>Full name</label>
+        <input name="name" value="${esc(e.name)}" maxlength="100" required>
+      </div>
+      <div class="field">
+        <label>Work email</label>
+        <input name="email" type="email" value="${esc(e.email)}" required>
+      </div>
+      <div class="field">
+        <label>Department</label>
+        <input name="department" value="${esc(e.department)}" maxlength="50" required>
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label>Shift start (IST)</label>
+          <input name="shift_start" type="time" value="${e.shift_start}" required>
+        </div>
+        <div class="field">
+          <label>Shift end (IST)</label>
+          <input name="shift_end" type="time" value="${e.shift_end}" required>
+        </div>
+      </div>
+      <div class="field">
+        <label>Joined on</label>
+        <input name="joined_on" type="date" value="${e.joined_on}" required>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="secondary" onclick="closeModal()">Cancel</button>
+        ${code ? '' : '<button type="submit" class="primary">Create employee</button>'}
+      </div>
+    </form>
+  `;
+
+  $('employeeForm').onsubmit = async ev => {
+    ev.preventDefault();
+    let f = new FormData(ev.target);
+    let v = Object.fromEntries(f.entries());
+    if (v.shift_start === v.shift_end) return notify('Shift start and end must differ.', true);
+
+    if (state.mode === 'api') {
+      try {
+        await request('/employees', {
+          method: 'POST',
+          body: JSON.stringify(v)
+        });
+        notify(`Employee ${v.emp_code} created successfully.`);
+        closeModal();
+        await refreshAllData();
+      } catch (err) {
+        notify(`Create employee failed: ${err.message}`, true);
+      }
+    } else {
+      if (state.employees.some(x => x.emp_code === v.emp_code)) return notify('Employee code already exists.', true);
+      state.employees.push({ ...v, created_at: Date.now() });
+      saveLocal();
+      notify(`Employee ${v.emp_code} created in demo data.`);
+      closeModal();
+      renderAll();
+    }
+  };
+  $('modalBackdrop').classList.add('show');
+}
+
+// --- ATTENDANCE RECORDS SECTION ---
+let attDebounce;
+function onAttendanceFilterChange() {
+  clearTimeout(attDebounce);
+  attDebounce = setTimeout(() => {
+    state.attPage = 1;
+    renderAttendance();
+  }, 300);
+}
+
+function changeAttendancePage(delta) {
+  let maxPage = Math.max(1, Math.ceil(state.attTotal / state.attPageSize));
+  let next = state.attPage + delta;
+  if (next >= 1 && next <= maxPage) {
+    state.attPage = next;
+    renderAttendance();
+  }
+}
+
+async function renderAttendance() {
+  let code = ($('attendanceSearch')?.value || '').trim();
+  let from = $('fromDate')?.value || '';
+  let to = $('toDate')?.value || '';
+  let status = $('statusFilter')?.value || '';
+
+  if (state.mode === 'api') {
+    try {
+      let params = new URLSearchParams();
+      params.set('page', state.attPage);
+      params.set('page_size', state.attPageSize);
+      if (code) params.set('emp_code', code);
+      if (from) params.set('date_from', from);
+      if (to) params.set('date_to', to);
+      if (status) params.set('status', status);
+
+      let data = await request(`/attendance?${params.toString()}`);
+      state.records = data.items || [];
+      state.attTotal = data.total || 0;
+      renderAttendanceTable(state.records, state.attTotal);
+    } catch (e) {
+      notify('Attendance list error: ' + e.message, true);
+    }
+  } else {
+    let list = state.records.filter(r => {
+      let e = getEmployee(r.emp_code);
+      let matchCode = !code || r.emp_code.toLowerCase().includes(code.toLowerCase()) || e.name.toLowerCase().includes(code.toLowerCase());
+      let matchFrom = !from || r.date >= from;
+      let matchTo = !to || r.date <= to;
+      let matchStatus = !status || r.status === status;
+      return matchCode && matchFrom && matchTo && matchStatus;
+    }).sort((a, b) => b.date.localeCompare(a.date) || a.emp_code.localeCompare(b.emp_code));
+
+    state.attTotal = list.length;
+    let skip = (state.attPage - 1) * state.attPageSize;
+    let pageItems = list.slice(skip, skip + state.attPageSize);
+    renderAttendanceTable(pageItems, list.length);
+  }
+}
+
+function renderAttendanceTable(items, total) {
+  $('attendanceRows').innerHTML = items.length ? items.map(r => {
+    let e = getEmployee(r.emp_code);
+    return `
+      <tr>
+        <td>
+          <div class="emp">
+            <div class="initial">${initials(e.name)}</div>
+            <div><div class="emp-name">${esc(e.name)}</div><div class="sub">${r.emp_code}</div></div>
+          </div>
+        </td>
+        <td>${r.date}</td>
+        <td>${timeFromEpoch(r.punch_in)}</td>
+        <td>${timeFromEpoch(r.punch_out)}</td>
+        <td><strong>${fmt(r.work_hours)}</strong></td>
+        <td>${(r.late_minutes || 0) > 0 ? `<span class="badge b-amber">${r.late_minutes}m</span>` : '0m'}</td>
+        <td>${(r.overtime_minutes || 0) > 0 ? `<span class="badge b-blue">${r.overtime_minutes}m</span>` : '0m'}</td>
+        <td>${r.half_day ? '<span class="badge b-red">Half Day</span>' : '<span class="muted">No</span>'}</td>
+        <td>${statusBadge(r.status)}</td>
+        <td><button class="secondary" onclick="openCorrection('${r.emp_code}','${r.date}')">Correct</button></td>
+      </tr>
+    `;
+  }).join('') : '<tr><td colspan="10" class="empty">No attendance records found matching filters.</td></tr>';
+
+  let maxPage = Math.max(1, Math.ceil(total / state.attPageSize));
+  $('attendancePageInfo').textContent = `Showing ${items.length} of ${total} records`;
+  $('attPageNum').textContent = `Page ${state.attPage} of ${maxPage}`;
+  $('attPrevBtn').disabled = state.attPage <= 1;
+  $('attNextBtn').disabled = state.attPage >= maxPage;
+}
+
+// --- CORRECTIONS & AUDIT SECTION ---
+async function renderCorrections() {
+  let list = [];
+  if (state.mode === 'api') {
+    try {
+      let data = await request('/attendance?page=1&page_size=50');
+      list = data.items || [];
+    } catch (e) {
+      notify('Could not load correction records: ' + e.message, true);
+    }
+  } else {
+    list = [...state.records].sort((a, b) => b.date.localeCompare(a.date));
+  }
+
+  $('correctionRows').innerHTML = list.length ? list.map(r => {
+    let e = getEmployee(r.emp_code);
+    let histCount = (r.history || []).length;
+    return `
+      <tr>
+        <td>${esc(e.name)}<div class="sub">${r.emp_code}</div></td>
+        <td>${r.date}</td>
+        <td>${statusBadge(r.status)}</td>
+        <td>${fmt(r.work_hours)}</td>
+        <td>${histCount > 0 ? `<span class="badge b-purple">${histCount} edit${histCount > 1 ? 's' : ''}</span>` : '<span class="muted">Original</span>'}</td>
+        <td><button class="secondary" onclick="openCorrection('${r.emp_code}','${r.date}')">Review / edit</button></td>
+      </tr>
+    `;
+  }).join('') : '<tr><td colspan="6" class="empty">No attendance records to correct.</td></tr>';
+
+  // Audit history table
+  let hist = [];
+  list.forEach(r => (r.history || []).forEach(h => hist.push({ ...h, emp_code: r.emp_code, date: r.date })));
+  hist.sort((a, b) => (b.at || 0) - (a.at || 0));
+
+  $('auditRows').innerHTML = hist.length ? hist.map(h => {
+    let changesDesc = Object.entries(h.changes || {}).map(([k, v]) => {
+      let fromStr = (k === 'punch_in' || k === 'punch_out') ? timeFromEpoch(v.from) : (v.from ?? 'null');
+      let toStr = (k === 'punch_in' || k === 'punch_out') ? timeFromEpoch(v.to) : (v.to ?? 'null');
+      return `<code>${k}: ${fromStr} → ${toStr}</code>`;
+    }).join(', ');
+
+    return `
+      <tr>
+        <td>${h.at ? new Date(h.at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) : '—'}</td>
+        <td><strong>${h.emp_code}</strong> (${h.date})</td>
+        <td><span class="pill-tag">${esc(h.by || 'HR_ADMIN')}</span></td>
+        <td>${esc(h.reason || '—')}</td>
+        <td>${changesDesc || '—'}</td>
+      </tr>
+    `;
+  }).join('') : '<tr><td colspan="5" class="empty">No manual corrections have been recorded yet.</td></tr>';
+}
+
+function openCorrection(code, dateStr) {
+  let r = state.records.find(x => x.emp_code === code && x.date === dateStr);
+  if (!r) {
+    r = { emp_code: code, date: dateStr, status: 'PRESENT', punch_in: null, punch_out: null, history: [] };
+  }
+  let emp = getEmployee(code);
+  let inTime = timeInputFromEpoch(r.punch_in);
+  let outTime = timeInputFromEpoch(r.punch_out);
+
+  $('modalTitle').textContent = `Correct attendance · ${code} (${dateStr})`;
+  $('modalBody').innerHTML = `
+    <form id="correctionForm">
+      <p class="muted small">${esc(emp.name)} · Shift: ${emp.shift_start}–${emp.shift_end}</p>
+      <div class="field">
+        <label>Status</label>
+        <select name="status" id="corrStatus">
+          ${['PRESENT', 'WFH', 'ON_DUTY', 'ABSENT', 'LEAVE'].map(s => `<option ${r.status === s ? 'selected' : ''}>${s}</option>`).join('')}
+        </select>
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label>Punch in (IST)</label>
+          <input name="punch_in" type="time" value="${inTime}">
+        </div>
+        <div class="field">
+          <label>Punch out (IST)</label>
+          <input name="punch_out" type="time" value="${outTime}">
+        </div>
+      </div>
+      <div class="field">
+        <label>Regularization reason (required, 5-200 chars)</label>
+        <textarea name="reason" rows="2" minlength="5" maxlength="200" required placeholder="E.g. Technical biometric failure during morning punch"></textarea>
+      </div>
+      <div class="field">
+        <label>Regularized by (Admin user ID)</label>
+        <input name="regularized_by" value="HR_ADMIN" required maxlength="50">
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="secondary" onclick="closeModal()">Cancel</button>
+        <button type="submit" class="primary">Apply correction</button>
+      </div>
+    </form>
+  `;
+
+  $('correctionForm').onsubmit = async ev => {
+    ev.preventDefault();
+    let f = new FormData(ev.target);
+    let v = Object.fromEntries(f.entries());
+
+    let body = {
+      status: v.status,
+      reason: v.reason,
+      regularized_by: v.regularized_by
+    };
+
+    if (['ABSENT', 'LEAVE'].includes(v.status)) {
+      body.punch_in = null;
+      body.punch_out = null;
+    } else {
+      if (v.punch_in) {
+        body.punch_in = stamp(dateStr, v.punch_in);
+      }
+      if (v.punch_out) {
+        body.punch_out = stamp(dateStr, v.punch_out);
+      }
+    }
+
+    if (state.mode === 'api') {
+      try {
+        await request(`/attendance/${encodeURIComponent(code)}/${dateStr}`, {
+          method: 'PATCH',
+          body: JSON.stringify(body)
+        });
+        notify(`Correction saved for ${code} on ${dateStr}. Derived fields recomputed.`);
+        closeModal();
+        await refreshAllData();
+      } catch (err) {
+        notify(`Correction failed: ${err.message}`, true);
+      }
+    } else {
+      let before = { status: r.status, punch_in: r.punch_in, punch_out: r.punch_out };
+      if (['ABSENT', 'LEAVE'].includes(v.status)) {
+        r.punch_in = null;
+        r.punch_out = null;
+        r.work_hours = null;
+        r.late_minutes = 0;
+        r.overtime_minutes = 0;
+        r.half_day = false;
+      } else {
+        if (!v.punch_in) return notify('Presence status requires punch-in time.', true);
+        r.punch_in = stamp(dateStr, v.punch_in);
+        r.punch_out = v.punch_out ? stamp(dateStr, v.punch_out) : null;
+        r.work_hours = (r.punch_in && r.punch_out) ? Math.round(((r.punch_out - r.punch_in) / 3600000) * 100) / 100 : null;
+        r.half_day = r.work_hours !== null && r.work_hours < 4.5;
+      }
+      r.status = v.status;
+      let changes = {};
+      for (let k of Object.keys(before)) {
+        if (before[k] !== r[k]) changes[k] = { from: before[k], to: r[k] };
+      }
+      r.history = r.history || [];
+      r.history.push({ at: Date.now(), by: v.regularized_by, reason: v.reason, changes });
+      saveLocal();
+      closeModal();
+      notify('Correction saved with audit trail entry.');
+      renderAll();
+    }
+  };
+  $('modalBackdrop').classList.add('show');
+}
+
+function closeModal() {
+  $('modalBackdrop').classList.remove('show');
+}
+
+// --- ANALYTICS SECTION ---
+async function renderAnalytics() {
+  let month = $('summaryMonth').value || currentMonth;
+  let limit = $('leaderLimit').value || 10;
+
+  if (state.mode === 'api') {
+    $('analyticsBanner').className = 'banner api-active';
+    $('analyticsBanner').innerHTML = `<span>✓</span><div><strong>Connected to live MongoDB aggregation pipelines.</strong> Metrics are calculated on the server per business rules R1-R10.</div>`;
+
+    // 1. Department Summary Pipeline
+    try {
+      let deptData = await request(`/analytics/departments/summary?month=${month}`);
+      renderDepartmentSummaryTable(deptData.items || []);
+    } catch (e) {
+      $('summaryRows').innerHTML = `<tr><td colspan="7" class="empty">Department summary error: ${esc(e.message)}</td></tr>`;
+    }
+
+    // 2. Late Leaderboard Pipeline
+    try {
+      let leaderData = await request(`/analytics/leaderboard/late?month=${month}&limit=${limit}`);
+      renderLeaderboardTable(leaderData.items || []);
+    } catch (e) {
+      $('leaderRows').innerHTML = `<tr><td colspan="5" class="empty">Leaderboard error: ${esc(e.message)}</td></tr>`;
+    }
+
+    // 3. Department Trend Chart
+    renderTrend();
+
+    // 4. Employee Monthly Card
+    renderEmployeeMonthly();
+  } else {
+    $('analyticsBanner').className = 'banner';
+    $('analyticsBanner').innerHTML = `<span>ⓘ</span><div>Demo mode preview calculations using local browser records. Switch to API mode to run official MongoDB aggregation pipelines.</div>`;
+    renderDemoAnalytics(month, limit);
+  }
+}
+
+function renderDepartmentSummaryTable(items) {
+  $('summaryRows').innerHTML = items.length ? items.map(s => `
+    <tr>
+      <td><strong>${esc(s.department)}</strong></td>
+      <td>${s.headcount}</td>
+      <td>${fmt(s.present_days)}</td>
+      <td>${fmt(s.avg_work_hours)} hrs</td>
+      <td>${s.late_count}</td>
+      <td>${s.total_late_minutes || 0}m</td>
+      <td>${s.leave_count || 0}</td>
+    </tr>
+  `).join('') : '<tr><td colspan="7" class="empty">No department records for this month.</td></tr>';
+}
+
+function renderLeaderboardTable(items) {
+  $('leaderRows').innerHTML = items.length ? items.map(x => `
+    <tr>
+      <td><span class="badge ${x.rank === 1 ? 'b-amber' : x.rank <= 3 ? 'b-blue' : 'b-gray'}">#${x.rank}</span></td>
+      <td><strong>${esc(x.name || x.emp_code)}</strong><div class="sub">${x.emp_code}</div></td>
+      <td>${esc(x.department || '—')}</td>
+      <td><strong>${x.total_late_minutes} min</strong></td>
+      <td>${x.late_count} times</td>
+    </tr>
+  `).join('') : '<tr><td colspan="5" class="empty">No late arrivals recorded for this month.</td></tr>';
+}
+
+async function renderTrend() {
+  let dept = $('trendDepartment').value;
+  if (!dept && state.employees.length) dept = state.employees[0].department;
+  if (!dept) return;
+
+  // 7-day range (from 6 days ago to today)
+  let dEnd = new Date();
+  let dStart = new Date();
+  dStart.setDate(dEnd.getDate() - 6);
+  let strStart = localDate(dStart);
+  let strEnd = localDate(dEnd);
+
+  if (state.mode === 'api') {
+    try {
+      let data = await request(`/analytics/departments/${encodeURIComponent(dept)}/trend?from=${strStart}&to=${strEnd}`);
+      let rows = data.items || [];
+      renderTrendChart(dept, rows);
+    } catch (e) {
+      $('trendSummary').textContent = `Trend aggregation notice: ${e.message}`;
+      $('trendChart').innerHTML = `<div class="empty">${esc(e.message)}</div>`;
+    }
+  } else {
+    // Demo trend
+    let days = [];
+    for (let i = 6; i >= 0; i--) {
+      let d = new Date();
+      d.setDate(d.getDate() - i);
+      days.push(localDate(d));
+    }
+    let data = days.map(date => {
+      let emps = state.employees.filter(e => e.department === dept && e.joined_on <= date);
+      let rs = state.records.filter(r => r.date === date && emps.some(e => e.emp_code === r.emp_code));
+      let pres = rs.filter(r => ['PRESENT', 'WFH', 'ON_DUTY'].includes(r.status)).reduce((n, r) => n + (r.half_day ? 0.5 : 1), 0);
+      let isWk = new Date(date).getDay() >= 1 && new Date(date).getDay() <= 5;
+      return {
+        date,
+        is_working_day: isWk,
+        headcount: emps.length,
+        present_count: pres,
+        late_count: rs.filter(r => (r.late_minutes || 0) > 0).length,
+        attendance_rate: emps.length ? Math.round((pres / emps.length) * 10000) / 10000 : null,
+        moving_avg_7d: null
+      };
+    });
+    renderTrendChart(dept, data);
+  }
+}
+
+function renderTrendChart(dept, items) {
+  let max = Math.max(1, ...items.map(d => d.present_count || 0));
+  $('trendChart').innerHTML = items.map(d => {
+    let ht = Math.max(4, Math.round(((d.present_count || 0) / max) * 140));
+    let isWeekend = !d.is_working_day;
+    let ratePct = d.attendance_rate != null ? `${(d.attendance_rate * 100).toFixed(1)}%` : 'N/A';
+    let maPct = d.moving_avg_7d != null ? `${(d.moving_avg_7d * 100).toFixed(1)}%` : 'N/A';
+    let tooltip = `${d.date}: ${d.present_count} present (${ratePct} rate, 7d MA: ${maPct})`;
+    return `
+      <div class="chart-col" title="${tooltip}">
+        <div class="chart-bar ${isWeekend ? 'weekend' : ''}" style="height:${ht}px"></div>
+        <div class="chart-label">${d.date.slice(5)}</div>
+      </div>
+    `;
+  }).join('');
+
+  let totalPres = items.reduce((a, b) => a + (b.present_count || 0), 0);
+  let latestMA = items.length && items[items.length - 1].moving_avg_7d != null ? `${(items[items.length - 1].moving_avg_7d * 100).toFixed(2)}%` : '—';
+  $('trendSummary').textContent = `${dept} Department: ${totalPres.toFixed(1)} present-record equivalents across 7 calendar days. Latest 7-day Moving Average: ${latestMA}. Database gap-filling powered by MongoDB $densify.`;
+}
+
+// Employee Monthly Breakdown
+async function renderEmployeeMonthly() {
+  let code = $('empMonthlySelect')?.value;
+  if (!code && state.employees.length) {
+    code = state.employees[0].emp_code;
+    if ($('empMonthlySelect')) $('empMonthlySelect').value = code;
+  }
+  if (!code) return;
+
+  let month = $('summaryMonth').value || currentMonth;
+
+  if (state.mode === 'api') {
+    try {
+      let data = await request(`/analytics/employees/${encodeURIComponent(code)}/monthly?month=${month}`);
+      $('empMonthlyContent').innerHTML = `
+        <div class="two-col">
+          <div>
+            <div class="metric-row"><span>Employee code</span><strong>${data.emp_code}</strong></div>
+            <div class="metric-row"><span>Working days (Mon-Fri)</span><strong>${data.working_days}</strong></div>
+            <div class="metric-row"><span>Present days</span><strong>${fmt(data.present_days)}</strong></div>
+            <div class="metric-row"><span>Attendance percentage</span><strong>${data.attendance_pct != null ? `${data.attendance_pct}%` : '—'}</strong></div>
+          </div>
+          <div>
+            <div class="metric-row"><span>Approved leave days</span><strong>${data.leave_days}</strong></div>
+            <div class="metric-row"><span>Late arrival count</span><strong>${data.late_count}</strong></div>
+            <div class="metric-row"><span>Total late minutes</span><strong>${data.total_late_minutes} min</strong></div>
+            <div class="metric-row"><span>Total overtime</span><strong>${data.total_overtime_minutes} min</strong></div>
+          </div>
+        </div>
+      `;
+    } catch (e) {
+      $('empMonthlyContent').innerHTML = `<div class="empty">Employee monthly error: ${esc(e.message)}</div>`;
+    }
+  } else {
+    let emp = getEmployee(code);
+    let rs = state.records.filter(r => r.emp_code === code && r.date.startsWith(month));
+    let pres = rs.filter(r => ['PRESENT', 'WFH', 'ON_DUTY'].includes(r.status)).reduce((n, r) => n + (r.half_day ? 0.5 : 1), 0);
+    $('empMonthlyContent').innerHTML = `
+      <div class="two-col">
+        <div>
+          <div class="metric-row"><span>Employee</span><strong>${esc(emp.name)} (${code})</strong></div>
+          <div class="metric-row"><span>Present days (Demo)</span><strong>${pres}</strong></div>
+          <div class="metric-row"><span>Late minutes (Demo)</span><strong>${rs.reduce((a, b) => a + (b.late_minutes || 0), 0)} min</strong></div>
+        </div>
+        <div>
+          <div class="metric-row"><span>Status</span><span class="badge b-amber">Demo calculation</span></div>
+          <p class="muted small" style="margin-top:10px">In API mode, working days are evaluated strictly per R7 with mid-month joiner boundaries and R8 half-up rounding.</p>
+        </div>
+      </div>
+    `;
+  }
+}
+
+function renderDemoAnalytics(month, limit) {
+  let deps = [...new Set(state.employees.map(e => e.department))].sort();
+  let summaries = deps.map(dep => {
+    let emps = state.employees.filter(e => e.department === dep && e.joined_on <= month + '-31');
+    let rs = state.records.filter(r => r.date.startsWith(month) && emps.some(e => e.emp_code === r.emp_code));
+    let pres = rs.filter(r => ['PRESENT', 'WFH', 'ON_DUTY'].includes(r.status));
+    let hours = pres.filter(r => r.work_hours != null).map(r => r.work_hours);
+    return {
+      department: dep,
+      headcount: emps.length,
+      present_days: pres.reduce((n, r) => n + (r.half_day ? 0.5 : 1), 0),
+      avg_work_hours: hours.length ? hours.reduce((a, b) => a + b, 0) / hours.length : null,
+      late_count: rs.filter(r => (r.late_minutes || 0) > 0).length,
+      total_late_minutes: rs.reduce((a, b) => a + (b.late_minutes || 0), 0),
+      leave_count: rs.filter(r => r.status === 'LEAVE').length
+    };
+  }).filter(x => x.headcount > 0);
+  renderDepartmentSummaryTable(summaries);
+
+  // Demo leaderboard
+  let totals = {};
+  state.records.filter(r => r.date.startsWith(month) && (r.late_minutes || 0) > 0).forEach(r => {
+    totals[r.emp_code] = (totals[r.emp_code] || 0) + r.late_minutes;
+  });
+  let board = Object.entries(totals).map(([c, m]) => ({ emp_code: c, total_late_minutes: m, late_count: 1, ...getEmployee(c) })).sort((a, b) => b.total_late_minutes - a.total_late_minutes);
+  let rank = 0, prev = null;
+  board = board.map((x, i) => {
+    if (x.total_late_minutes !== prev) rank = i + 1;
+    prev = x.total_late_minutes;
+    return { ...x, rank };
+  }).filter(x => x.rank <= Number(limit));
+  renderLeaderboardTable(board);
+  renderTrend();
+  renderEmployeeMonthly();
+}
+
+// --- ADMIN EXPLAIN TOOL SECTION ---
+function onExplainEndpointChange() {
+  let ep = $('explainEndpoint').value;
+  let row = $('explainParamsRow');
+  let month = currentMonth;
+  let code = state.employees[0]?.emp_code || 'EMP0001';
+  let dept = state.employees[0]?.department || 'Engineering';
+
+  if (ep === 'attendance_list') {
+    row.innerHTML = `
+      <div class="field"><label>Employee code (optional)</label><input id="expCode" placeholder="EMP0001"></div>
+      <div class="field"><label>Status (optional)</label><select id="expStatus"><option value="">Any</option><option>PRESENT</option><option>WFH</option><option>ON_DUTY</option></select></div>
+    `;
+  } else if (ep === 'employee_monthly') {
+    row.innerHTML = `
+      <div class="field"><label>Employee code (required)</label><input id="expCode" value="${code}"></div>
+      <div class="field"><label>Month (required)</label><input type="month" id="expMonth" value="${month}"></div>
+    `;
+  } else if (ep === 'department_summary') {
+    row.innerHTML = `
+      <div class="field"><label>Month (required)</label><input type="month" id="expMonth" value="${month}"></div>
+      <div class="field"><label>Department (optional)</label><input id="expDept" placeholder="Engineering"></div>
+    `;
+  } else if (ep === 'late_leaderboard') {
+    row.innerHTML = `
+      <div class="field"><label>Month (required)</label><input type="month" id="expMonth" value="${month}"></div>
+      <div class="field"><label>Limit</label><input type="number" id="expLimit" value="10" min="1" max="50"></div>
+    `;
+  } else if (ep === 'department_trend') {
+    let d2 = new Date();
+    let d1 = new Date();
+    d1.setDate(d2.getDate() - 7);
+    row.innerHTML = `
+      <div class="field"><label>Department (required)</label><input id="expDept" value="${dept}"></div>
+      <div class="two-col">
+        <div class="field"><label>From date</label><input type="date" id="expFrom" value="${localDate(d1)}"></div>
+        <div class="field"><label>To date</label><input type="date" id="expTo" value="${localDate(d2)}"></div>
+      </div>
+    `;
+  }
+}
+
+async function runExplain() {
+  if (state.mode !== 'api') {
+    return notify('Please switch to API mode first to run MongoDB explain.', true);
+  }
+
+  let ep = $('explainEndpoint').value;
+  let params = new URLSearchParams();
+
+  if (ep === 'attendance_list') {
+    let c = $('expCode')?.value; if (c) params.set('emp_code', c);
+    let s = $('expStatus')?.value; if (s) params.set('status', s);
+  } else if (ep === 'employee_monthly') {
+    params.set('emp_code', $('expCode')?.value || 'EMP0001');
+    params.set('month', $('expMonth')?.value || currentMonth);
+  } else if (ep === 'department_summary') {
+    params.set('month', $('expMonth')?.value || currentMonth);
+    let d = $('expDept')?.value; if (d) params.set('department', d);
+  } else if (ep === 'late_leaderboard') {
+    params.set('month', $('expMonth')?.value || currentMonth);
+    params.set('limit', $('expLimit')?.value || 10);
+  } else if (ep === 'department_trend') {
+    params.set('department', $('expDept')?.value || 'Engineering');
+    params.set('from', $('expFrom')?.value || today);
+    params.set('to', $('expTo')?.value || today);
+  }
+
+  $('explainSummaryBox').innerHTML = 'Running MongoDB explain command with executionStats verbosity…';
+  $('explainJsonViewer').textContent = '// Loading...';
+
+  try {
+    let res = await request(`/admin/explain/${ep}?${params.toString()}`);
+    let exp = res.explain || {};
+    let queryPlanner = exp.queryPlanner || (exp.stages && exp.stages[0]?.$cursor?.queryPlanner) || {};
+    let winningPlan = queryPlanner.winningPlan || {};
+    let stage = winningPlan.stage || (winningPlan.inputStage ? winningPlan.inputStage.stage : 'AGGREGATION');
+    let indexUsed = winningPlan.indexName || (winningPlan.inputStage ? winningPlan.inputStage.indexName : null);
+    let execStats = exp.executionStats || (exp.stages && exp.stages[0]?.$cursor?.executionStats) || {};
+
+    $('explainSummaryBox').innerHTML = `
+      <div class="two-col">
+        <div>
+          <div class="metric-row"><span>Target endpoint</span><code>${res.endpoint}</code></div>
+          <div class="metric-row"><span>Collection</span><strong>${res.collection}</strong></div>
+          <div class="metric-row"><span>Winning stage</span><span class="badge ${stage === 'IXSCAN' || indexUsed ? 'b-green' : 'b-amber'}">${stage}</span></div>
+        </div>
+        <div>
+          <div class="metric-row"><span>Index name</span><strong>${indexUsed || 'Compound / Aggregation stage'}</strong></div>
+          <div class="metric-row"><span>Execution time</span><strong>${execStats.executionTimeMillis ?? 0} ms</strong></div>
+          <div class="metric-row"><span>Total documents examined</span><strong>${execStats.totalDocsExamined ?? 'Pipeline cursor'}</strong></div>
+        </div>
+      </div>
+    `;
+    $('explainJsonViewer').textContent = JSON.stringify(res, null, 2);
+    notify(`Query plan for ${ep} generated successfully.`);
+  } catch (e) {
+    $('explainSummaryBox').innerHTML = `<div class="empty">Explain error: ${esc(e.message)}</div>`;
+    $('explainJsonViewer').textContent = '// Explain failed';
+    notify(`Explain failed: ${e.message}`, true);
+  }
+}
+
+// --- SETTINGS & INITIALIZATION ---
+async function saveApiSettings() {
+  state.base = $('apiBase').value.trim().replace(/\/$/, '') || 'http://127.0.0.1:8000';
+  let mode = $('connectionMode').value;
+
+  if (mode === 'api') {
+    state.mode = 'api';
+    $('healthStatus').textContent = 'Connecting…';
+    renderAll();
+    notify('API mode enabled. Testing connection to FastAPI…');
+    await testConnection();
+    await refreshAllData();
+  } else {
+    state.mode = 'demo';
+    loadLocal();
+    renderAll();
+    notify('Demo mode enabled with sample data.');
+  }
+}
+
+async function testConnection() {
+  state.base = $('apiBase').value.trim().replace(/\/$/, '') || 'http://127.0.0.1:8000';
+  $('healthStatus').textContent = 'Testing…';
+  try {
+    let res = await request('/health');
+    $('healthStatus').textContent = `Connected · ${res.status || 'ok'}`;
+    notify('Health check successful: MongoDB is connected.');
+  } catch (e) {
+    $('healthStatus').textContent = 'Failed';
+    notify(`Health check failed: ${e.message}`, true);
+  }
+}
+
+async function refreshAllData() {
+  if (state.mode === 'api') {
+    try {
+      let [empRes, attRes] = await Promise.all([
+        request('/employees?page=1&page_size=100'),
+        request('/attendance?page=1&page_size=100')
+      ]);
+      state.employees = empRes.items || [];
+      state.empTotal = empRes.total || 0;
+      state.records = attRes.items || [];
+      state.attTotal = attRes.total || 0;
+      renderAll();
+    } catch (e) {
+      notify('Data refresh failed: ' + e.message, true);
+    }
+  } else {
+    loadLocal();
+    renderAll();
+  }
+}
+
+function fillDropdowns() {
+  let opts = state.employees.slice().sort((a, b) => a.emp_code.localeCompare(b.emp_code)).map(e => `
+    <option value="${e.emp_code}">${e.emp_code} · ${esc(e.name)}</option>
+  `).join('');
+
+  ['punchInEmployee', 'punchOutEmployee', 'empMonthlySelect'].forEach(id => {
+    let el = $(id);
+    if (!el) return;
+    let old = el.value;
+    el.innerHTML = opts;
+    if ([...el.options].some(o => o.value === old)) el.value = old;
+  });
+
+  let deps = [...new Set(state.employees.map(e => e.department))].filter(Boolean).sort();
+  let oldDept = $('departmentFilter').value;
+  $('departmentFilter').innerHTML = '<option value="">All departments</option>' + deps.map(d => `<option value="${esc(d)}">${esc(d)}</option>`).join('');
+  $('departmentFilter').value = deps.includes(oldDept) ? oldDept : '';
+
+  let oldTrendDept = $('trendDepartment').value;
+  $('trendDepartment').innerHTML = deps.map(d => `<option value="${esc(d)}">${esc(d)}</option>`).join('');
+  $('trendDepartment').value = deps.includes(oldTrendDept) ? oldTrendDept : (deps[0] || '');
+}
+
+function renderAll() {
+  $('modeLabel').textContent = state.mode === 'demo' ? 'Demo mode · sample data' : 'API mode · FastAPI + MongoDB';
+  $('modeDot').style.background = state.mode === 'demo' ? '#d49a2a' : '#17845d';
+  $('dashboardBanner').classList.toggle('hide', state.mode !== 'demo');
+  $('settingsMode').textContent = state.mode === 'demo' ? 'Demo (local)' : 'API (live)';
+  $('settingsBase').textContent = state.base;
+  $('connectionMode').value = state.mode;
+
+  fillDropdowns();
+  refreshDashboard();
+
+  if ($('page-employees').classList.contains('active')) renderEmployees();
+  if ($('page-attendance').classList.contains('active')) renderAttendance();
+  if ($('page-corrections').classList.contains('active')) renderCorrections();
+  if ($('page-analytics').classList.contains('active')) renderAnalytics();
+  if ($('page-explain').classList.contains('active')) onExplainEndpointChange();
+}
+
+async function boot() {
+  $('summaryMonth').value = currentMonth;
+  $('todayLabel').textContent = new Intl.DateTimeFormat('en-IN', { dateStyle: 'full' }).format(new Date());
+
+  // Attempt initial API check, fall back to demo if backend offline
+  try {
+    let res = await request('/health');
+    state.mode = 'api';
+    $('healthStatus').textContent = `Connected · ${res.status || 'ok'}`;
+    await refreshAllData();
+  } catch (e) {
+    state.mode = 'demo';
+    $('healthStatus').textContent = 'Not reachable (using Demo)';
+    loadLocal();
+    renderAll();
+  }
+}
+
+boot();
+</script>
+</body>
+</html>
